@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Click</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Insert Medicine code</h2>
+        <form id="myForm" action="/handle_click" method="post">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" id="inputField" name="inputField" placeholder="Enter something...">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="submit" id="submitButton">Click Me</button>
+                </div>
+            </div>
+        </form>
+        <!-- Display the QR code image -->
+        <div id="qrCodeContainer"></div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        document.getElementById('myForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+
+            var formData = new FormData(document.getElementById('myForm'));
+
+            fetch('/handle_click', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                var generatedText = data.generated_text;
+                var qrCodeImage = data.qr_code_image;
+
+                // Create an image element for the QR code
+                var qrCodeImg = document.createElement('img');
+                qrCodeImg.src = qrCodeImage;
+                qrCodeImg.alt = 'QR Code';
+
+                // Append the QR code image to the container
+                var qrCodeContainer = document.getElementById('qrCodeContainer');
+                qrCodeContainer.innerHTML = ''; // Clear previous content
+                qrCodeContainer.appendChild(qrCodeImg);
+
+                navigator.clipboard.writeText(generatedText)
+                .then(() => {
+                    alert('Generated value copied to clipboard: ' + generatedText);
+                })
+                .catch(error => {
+                    console.error('Error copying to clipboard: ', error);
+                });
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
